@@ -3,10 +3,11 @@
 # Além das funções e classes sugeridas, podem acrescentar outras que considerem pertinentes.
 
 # Grupo 00:
-# 00000 Nome1
-# 00000 Nome2
+# 106700 Afonso Cordeiro Ferreira Rosa
+# 105672 Rafael Alexandre Proença Pronto
 
 import sys
+from sys import *
 from search import (
     Problem,
     Node,
@@ -34,6 +35,11 @@ class PipeManiaState:
 
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
+
+    def __init__(self, input):
+        self.grid = input
+        self.rows = len(self.grid)
+        self.cols = len(self.grid[0])
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -63,8 +69,17 @@ class Board:
             > from sys import stdin
             > line = stdin.readline().split()
         """
-        # TODO
-        pass
+        input_lines = []
+        while True:
+            line = stdin.readline().split()
+            if line == []:
+                break
+            input_lines.append(line)
+        return Board(input_lines)
+
+    def print_grid(self):
+        for row in self.grid:
+            print('\t'.join(row))
 
     # TODO: outros metodos da classe
 
@@ -110,4 +125,6 @@ if __name__ == "__main__":
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
+    board = Board.parse_instance()
+    board.print_grid()
     pass
