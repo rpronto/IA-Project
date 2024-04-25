@@ -43,31 +43,44 @@ class Board:
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        # TODO
-        pass
+        return self.grid[row][col]
 
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
-        # TODO
-        pass
-
+        values = ()
+        upper_row = row - 1
+        lower_row = row + 1
+        if (upper_row >= 0) and (upper_row < self.rows):
+            values += (self.grid[upper_row][col],)
+        else:
+            values += ('None',)
+        if (lower_row >= 0) and (lower_row < self.rows):
+            values += (self.grid[lower_row][col],)
+        else:
+            values += ('None',)
+        return values
+        
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        # TODO
-        pass
+        values = ()
+        left_col = col - 1
+        right_col = col + 1
+        if (left_col >= 0) and (left_col < self.cols):
+            values += (self.grid[row][left_col],)
+        else:
+            values += ('None',)
+        if (right_col >= 0) and (right_col < self.rows):
+            values += (self.grid[row][right_col],)
+        else:
+            values += ('None',)
+        return values
 
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
         e retorna uma instância da classe Board.
-
-        Por exemplo:
-            $ python3 pipe.py < test-01.txt
-
-            > from sys import stdin
-            > line = stdin.readline().split()
         """
         input_lines = []
         while True:
@@ -127,4 +140,6 @@ if __name__ == "__main__":
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance()
     board.print_grid()
+    print(board.adjacent_vertical_values(1,1))
+    print(board.adjacent_horizontal_values(2,2))
     pass
