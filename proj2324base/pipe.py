@@ -18,6 +18,9 @@ from search import (
     recursive_best_first_search,
 )
 
+FC, FB, FE, FD, BC, BB, BE, BD, VC, VB, VE, VD, LH, LV = (
+    'FC', 'FB', 'FE', 'FD', 'BC', 'BB', 'BE', 'BD', 'VC', 'VB', 'VE', 'VD', 'LH', 'LV'
+)
 
 class PipeManiaState:
     state_id = 0
@@ -100,14 +103,30 @@ class Board:
 class PipeMania(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO
-        pass
+        self.board = board
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
-        partir do estado passado como argumento."""
-        # TODO
-        pass
+        partir do estado passado como argumento.
+        0 -> ROTATE_CLOCKWISE
+        1 -> ROTATE_COUNTERCLOCKWISE
+        90 -> 90 graus de rotação, no sentido horário ou anti-horário
+        180 -> 180 graus de rotação, no sentido horário (180 graus a posição 
+        será igual independentemente do sentido da rotação então consideramos 
+        sempre o sentido horário)
+        """
+        actions = []
+        for row in range(state.board.rows):
+            for col in range(state.board.cols):
+                piece = state.board.get_value(row, col)
+                if piece in [FC, FB, FE, FD, BC, BB, BE, BD, VC, VB, VE, VD, LH, LV]:
+                    if piece in [LH, LV]:
+                        actions.append((row, col, 0, 90))
+                    else:    
+                        actions.append((row, col, 0, 90))
+                        actions.append((row, col, 0, 180))
+                        actions.append((row, col, 1, 90))
+        return actions
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -139,7 +158,12 @@ if __name__ == "__main__":
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance()
-    board.print_grid()
-    print(board.adjacent_vertical_values(1,1))
-    print(board.adjacent_horizontal_values(2,2))
+
+    state = PipeManiaState(board)
+
+    problem = PipeMania(state.board)
+    
+    state.board.print_grid()
+
+    print(problem.actions(state))
     pass
