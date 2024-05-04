@@ -7,6 +7,7 @@
 # 105672 Rafael Alexandre Proença Pronto
 
 import sys
+import numpy as np
 from sys import *
 from search import (
     Problem,
@@ -40,7 +41,7 @@ class Board:
     """Representação interna de um tabuleiro de PipeMania."""
 
     def __init__(self, input):
-        self.grid = input
+        self.grid = np.array(input)
         self.rows = len(self.grid)
         self.cols = len(self.grid[0])
 
@@ -114,18 +115,97 @@ class PipeMania(Problem):
         180 -> 180 graus de rotação, no sentido horário (180 graus a posição 
         será igual independentemente do sentido da rotação então consideramos 
         sempre o sentido horário)
+        Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
         """
+        fecho = [FC, FB, FE, FD]
+        bifurcacao = [BC, BB, BE, BD]
+        volta = [VC, VB, VE, VD]
+        ligacao = [LH, LV]
+        
         actions = []
         for row in range(state.board.rows):
             for col in range(state.board.cols):
                 piece = state.board.get_value(row, col)
-                if piece in [FC, FB, FE, FD, BC, BB, BE, BD, VC, VB, VE, VD, LH, LV]:
-                    if piece in [LH, LV]:
-                        actions.append((row, col, 0, 90))
-                    else:    
-                        actions.append((row, col, 0, 90))
-                        actions.append((row, col, 0, 180))
-                        actions.append((row, col, 1, 90))
+                if row == 0:
+                    if col == 0:
+                        if piece in [VC, FC, FE]:
+                            actions.append((row, col, 0, 180))  #180
+                        if piece in [VE, FE, FB]: 
+                            actions.append((row, col, 1, 90))   #esquerda
+                        if piece in [VD, FC, FD] :
+                            actions.append((row, col, 0, 90))   #direita  
+                        if piece in [VB, FB, FD]:
+                            actions.append((row, col, 0, 0))
+                    elif col == state.board.cols:
+                        if piece in [VD, FC, FD]:  
+                            actions.append((row, col, 0, 180))  #180
+                        if piece in [VC, FC, FE]: 
+                            actions.append((row, col, 1, 90))   #esquerda
+                        if piece in [VB, FB, FD] :
+                            actions.append((row, col, 0, 90))   #direita  
+                        if piece in [VE, FB, FE]:
+                            actions.append((row, col, 0, 0))
+                    else:
+                        if piece in [FC, FE, FD, BC, VC, VD]:  
+                            actions.append((row, col, 0, 180))  #180
+                        if piece in [FC, FB, FE, BE, VC, VE]: 
+                            actions.append((row, col, 1, 90))   #esquerda
+                        if piece in [BD, LV, VB, VD, FC, FB, FD] :
+                            actions.append((row, col, 0, 90))   #direita  
+                        if piece in [BB, LH, FB, FE, FD, VB, VE]:
+                            actions.append((row, col, 0, 0))
+                elif row == state.board.rows:
+                    if col == 0:
+                        if piece in [VE, FB, FE]:
+                            actions.append((row, col, 0, 180))  #180
+                        if piece in [VB, FB, FD]: 
+                            actions.append((row, col, 1, 90))   #esquerda
+                        if piece in [VC, FC, FE] :
+                            actions.append((row, col, 0, 90))   #direita  
+                        if piece in [VD, FC, FD]:
+                            actions.append((row, col, 0, 0))  
+                    elif col == state.board.cols:
+                        if piece in [VB, FB, FD]:
+                            actions.append((row, col, 0, 180))  #180
+                        if piece in [VD, FC, FD]: 
+                            actions.append((row, col, 1, 90))   #esquerda
+                        if piece in [VE, FB, FE] :
+                            actions.append((row, col, 0, 90))   #direita  
+                        if piece in [VC, FC, FE]:
+                            actions.append((row, col, 0, 0))
+                    else:
+                        if piece in [FB, FE, FD, BB, VB, VE]:
+                            actions.append((row, col, 0, 180))  #180
+                        if piece in [FC, FB, FD, BD, VB, VD]: 
+                            actions.append((row, col, 1, 90))   #esquerda
+                        if piece in [FC, FB, FE, BE, VC, VE, LV] :
+                            actions.append((row, col, 0, 90))   #direita  
+                        if piece in [FC, FE, FD, LH, BC, VC, VD]:
+                            actions.append((row, col, 0, 0))
+                elif col == 0:
+                    if piece in [VC, VE, BE, FC, FB, FE]:
+                            actions.append((row, col, 0, 180))  #180
+                    if piece in [FB, FE, FD, BB, VB, VE]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FC, FE, FD, BC, VC, VD, LH] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [LV, VD, VB, BD, FD, FB, FC]:
+                        actions.append((row, col, 0, 0))
+                elif col == state.board.cols:
+                    if piece in [FC, FB, FD, BD, VD, VB]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [VC, VD, FC, FE, FD, BC]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FB, FE, FD, BB, VB, VE]:
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [LV, VE, VC, BE, FB, FC, FE]:
+                        actions.append((row, col, 0, 0))
+                elif piece in ligacao:
+                    actions.append((row, col, 0, 90))
+                else:    
+                    actions.append((row, col, 0, 90))
+                    actions.append((row, col, 0, 180))
+                    actions.append((row, col, 1, 90))
         return actions
 
     def result(self, state: PipeManiaState, action):
