@@ -202,10 +202,12 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 0))
                 elif piece in ligacao:
                     actions.append((row, col, 0, 90))
+                    actions.append((row, col, 0, 0))
                 else:    
                     actions.append((row, col, 0, 90))
                     actions.append((row, col, 0, 180))
                     actions.append((row, col, 1, 90))
+                    actions.append((row, col, 0, 0))
         return actions
 
     def result(self, state: PipeManiaState, action):
@@ -213,6 +215,37 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
+        if action[2] == 0 and action[3] == 0:
+            a#nao faz acao
+        else:
+            row = action[0]
+            col = action[1]
+            direction = action[2]
+            degrees = action[3]
+            piece = state.board.get_value(row, col)
+            fecho = [FC, FD, FB, FE]
+            bifurcacao = [BC, BD, BB, BE]
+            volta = [VC, VD, VB, VE]
+            ligacao = [LH, LV]
+            if piece in fecho:
+                tipo = fecho
+            elif piece in bifurcacao:
+                tipo = bifurcacao
+            elif piece in volta:
+                tipo = volta
+            elif piece in ligacao:
+                tipo = ligacao
+            
+            pos = tipo.index(piece)
+            if degrees == 90:
+                pos += 1
+            else:    
+                pos += 2
+            
+            pos_final = pos % len(tipo)
+            new_piece = tipo[pos_final]
+            #ALTERAR PECA NA BOARD
+            
         # TODO
         pass
 
