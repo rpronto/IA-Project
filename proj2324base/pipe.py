@@ -238,7 +238,12 @@ class PipeMania(Problem):
             
             pos = tipo.index(piece)
             if degrees == 90:
-                pos += 1
+                if degrees == 0:
+                    pos += 1
+                else:
+                    pos -=1
+                    if pos < 0:
+                        pos = len(tipo) - 1
             else:    
                 pos += 2
             
