@@ -7,6 +7,7 @@
 # 105672 Rafael Alexandre Proença Pronto
 
 import sys
+import copy
 import numpy as np
 from sys import *
 from search import (
@@ -215,9 +216,8 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        if action[2] == 0 and action[3] == 0:
-            a#nao faz acao
-        else:
+        board_copy = copy.deepcopy(state.board.grid)
+        if action[2] != 0 or action[3] != 0:
             row = action[0]
             col = action[1]
             direction = action[2]
@@ -238,7 +238,7 @@ class PipeMania(Problem):
             
             pos = tipo.index(piece)
             if degrees == 90:
-                if degrees == 0:
+                if direction == 0:
                     pos += 1
                 else:
                     pos -=1
@@ -249,8 +249,9 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-            #ALTERAR PECA NA BOARD
+            board_copy[row][col] = new_piece
             
+            return PipeManiaState(board_copy)
         # TODO
         pass
 
