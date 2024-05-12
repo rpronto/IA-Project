@@ -35,6 +35,9 @@ class PipeManiaState:
     def __lt__(self, other):
         return self.id < other.id
 
+    def set_grid(self, grid):
+        self.board.set_grid(grid)
+
     # TODO: outros metodos da classe
 
 
@@ -45,6 +48,12 @@ class Board:
         self.grid = np.array(input)
         self.rows = len(self.grid)
         self.cols = len(self.grid[0])
+
+    def get_grid(self):
+        return self.grid
+    
+    def set_grid(self, grid):
+        self.grid = grid
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -82,6 +91,20 @@ class Board:
             values += ('None',)
         return values
 
+    def adjacent_right_value(self, row: int, col: int) -> (str):
+        """Devolve o valor imediatamente à direita"""
+        right_col = col + 1
+        if right_col < self.rows:
+            return self.grid[row][right_col]
+        return 'None'
+        
+    def adjacent_lower_value(self, row: int, col: int) -> (str):
+        """Devolve o valor imediatamente abaixo"""
+        lower_row = row + 1
+        if lower_row < self.rows:
+            return self.grid[lower_row][col]
+        return 'None'
+
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -103,9 +126,9 @@ class Board:
 
 
 class PipeMania(Problem):
-    def __init__(self, board: Board):
+    def __init__(self, state: PipeManiaState):
         """O construtor especifica o estado inicial."""
-        self.board = board
+        self.initial = state
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -118,9 +141,6 @@ class PipeMania(Problem):
         sempre o sentido horário)
         Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
         """
-        fecho = [FC, FB, FE, FD]
-        bifurcacao = [BC, BB, BE, BD]
-        volta = [VC, VB, VE, VD]
         ligacao = [LH, LV]
         
         actions = []
@@ -216,7 +236,7 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        board_copy = copy.deepcopy(state.board.grid)
+        grid_copy = copy.deepcopy(state.board.get_grid())
         if action[2] != 0 or action[3] != 0:
             row = action[0]
             col = action[1]
@@ -249,18 +269,45 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-            board_copy[row][col] = new_piece
-            
+            grid_copy[row][col] = new_piece
+            board_copy = Board(grid_copy)
             return PipeManiaState(board_copy)
-        # TODO
-        pass
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        # TODO
-        pass
+        right_exit = [FD, BC, BB, BD, VB, VD, LH, 'None']
+        left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
+        upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
+        lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
+        for row in range(state.board.rows):
+            for col in range(state.board.cols):
+                piece = state.board.get_value(row, col)
+                right_piece = state.board.adjacent_right_value(row, col)
+                lower_piece = state.board.adjacent_lower_value(row, col)
+                if piece in upper_exit:
+                    if row == 0: 
+                        return False 
+                if piece in lower_exit:
+                    if row == state.board.rows:
+                        return False
+                    lower_piece = state.board.adjacent_lower_value(row, col)
+                    if lower_piece not in upper_exit:
+                        return False 
+                    
+                if piece in left_exit:
+                    if col == 0:
+                        return False
+                    
+                if piece in right_exit:
+                    if col == state.board.cols:
+                        return False
+                    right_piece = state.board.adjacent_right_value(row, col)
+                    if right_piece not in left_exit:
+                        return False
+        
+        return True
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -280,9 +327,11 @@ if __name__ == "__main__":
 
     state = PipeManiaState(board)
 
-    problem = PipeMania(state.board)
-    
-    state.board.print_grid()
+    problem = PipeMania(state)
 
-    print(problem.actions(state))
+    breadth_first_tree_search(problem)
+
+    problem.board.print_grid()
+
+
     pass
