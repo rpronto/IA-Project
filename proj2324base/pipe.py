@@ -145,7 +145,8 @@ class PipeMania(Problem):
         Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
         """
         ligacao = [LH, LV]
-        
+        if isinstance(state, PipeManiaState) == False:
+            state = PipeManiaState(state)
         actions = []
         for row in range(state.board.rows):
             for col in range(state.board.cols):
@@ -239,6 +240,8 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
+        if isinstance(state, PipeManiaState) == False:
+            state = PipeManiaState(state)
         grid_copy = copy.deepcopy(state.board.get_grid())
         if action[2] != 0 or action[3] != 0:
             row = action[0]
@@ -284,6 +287,8 @@ class PipeMania(Problem):
         left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
         upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
         lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
+        if isinstance(state, PipeManiaState) == False:
+            state = PipeManiaState(state)
         for row in range(state.board.rows):
             for col in range(state.board.cols):
                 piece = state.board.get_value(row, col)
@@ -331,7 +336,7 @@ if __name__ == "__main__":
     goal_node = depth_first_tree_search(problem)
 
     print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n", goal_node.state.board.print(), sep="")
+    print("Solution:\n", goal_node.state.board.print_grid(), sep="")
 
 
     pass
