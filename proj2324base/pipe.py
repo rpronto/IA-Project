@@ -37,6 +37,9 @@ class PipeManiaState:
 
     def set_grid(self, grid):
         self.board.set_grid(grid)
+    
+    def get_board(self):
+        return self.board
 
     # TODO: outros metodos da classe
 
@@ -126,9 +129,9 @@ class Board:
 
 
 class PipeMania(Problem):
-    def __init__(self, state: PipeManiaState):
+    def __init__(self, initial_state: Board):
         """O construtor especifica o estado inicial."""
-        self.initial = state
+        self.initial = initial_state
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -295,19 +298,17 @@ class PipeMania(Problem):
                     lower_piece = state.board.adjacent_lower_value(row, col)
                     if lower_piece not in upper_exit:
                         return False 
-                    
                 if piece in left_exit:
                     if col == 0:
                         return False
-                    
                 if piece in right_exit:
                     if col == state.board.cols:
                         return False
                     right_piece = state.board.adjacent_right_value(row, col)
                     if right_piece not in left_exit:
                         return False
-        
         return True
+       
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -325,13 +326,12 @@ if __name__ == "__main__":
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance()
 
-    state = PipeManiaState(board)
+    problem = PipeMania(board)
 
-    problem = PipeMania(state)
+    goal_node = depth_first_tree_search(problem)
 
-    breadth_first_tree_search(problem)
-
-    problem.board.print_grid()
+    print("Is goal?", problem.goal_test(goal_node.state))
+    print("Solution:\n", goal_node.state.board.print(), sep="")
 
 
     pass
