@@ -40,6 +40,9 @@ class PipeManiaState:
     
     def get_board(self):
         return self.board
+    
+    def increase_state_id(self):
+        self.id += 1
 
     # TODO: outros metodos da classe
 
@@ -57,6 +60,9 @@ class Board:
     
     def set_grid(self, grid):
         self.grid = grid
+    
+    def set_value(self, row: int, col: int, value):
+        self.grid[row][col] = value
 
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -124,6 +130,7 @@ class Board:
     def print_grid(self):
         for row in self.grid:
             print('\t'.join(row))
+        return ""
 
     # TODO: outros metodos da classe
 
@@ -148,91 +155,94 @@ class PipeMania(Problem):
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
         actions = []
-        for row in range(state.board.rows):
-            for col in range(state.board.cols):
-                piece = state.board.get_value(row, col)
-                if row == 0:
-                    if col == 0:
-                        if piece in [VC, FC, FE]:
-                            actions.append((row, col, 0, 180))  #180
-                        if piece in [VE, FE, FB]: 
-                            actions.append((row, col, 1, 90))   #esquerda
-                        if piece in [VD, FC, FD] :
-                            actions.append((row, col, 0, 90))   #direita  
-                        if piece in [VB, FB, FD]:
-                            actions.append((row, col, 0, 0))
-                    elif col == state.board.cols:
-                        if piece in [VD, FC, FD]:  
-                            actions.append((row, col, 0, 180))  #180
-                        if piece in [VC, FC, FE]: 
-                            actions.append((row, col, 1, 90))   #esquerda
-                        if piece in [VB, FB, FD] :
-                            actions.append((row, col, 0, 90))   #direita  
-                        if piece in [VE, FB, FE]:
-                            actions.append((row, col, 0, 0))
-                    else:
-                        if piece in [FC, FE, FD, BC, VC, VD]:  
-                            actions.append((row, col, 0, 180))  #180
-                        if piece in [FC, FB, FE, BE, VC, VE]: 
-                            actions.append((row, col, 1, 90))   #esquerda
-                        if piece in [BD, LV, VB, VD, FC, FB, FD] :
-                            actions.append((row, col, 0, 90))   #direita  
-                        if piece in [BB, LH, FB, FE, FD, VB, VE]:
-                            actions.append((row, col, 0, 0))
-                elif row == state.board.rows:
-                    if col == 0:
-                        if piece in [VE, FB, FE]:
-                            actions.append((row, col, 0, 180))  #180
-                        if piece in [VB, FB, FD]: 
-                            actions.append((row, col, 1, 90))   #esquerda
-                        if piece in [VC, FC, FE] :
-                            actions.append((row, col, 0, 90))   #direita  
-                        if piece in [VD, FC, FD]:
-                            actions.append((row, col, 0, 0))  
-                    elif col == state.board.cols:
-                        if piece in [VB, FB, FD]:
-                            actions.append((row, col, 0, 180))  #180
-                        if piece in [VD, FC, FD]: 
-                            actions.append((row, col, 1, 90))   #esquerda
-                        if piece in [VE, FB, FE] :
-                            actions.append((row, col, 0, 90))   #direita  
-                        if piece in [VC, FC, FE]:
-                            actions.append((row, col, 0, 0))
-                    else:
-                        if piece in [FB, FE, FD, BB, VB, VE]:
-                            actions.append((row, col, 0, 180))  #180
-                        if piece in [FC, FB, FD, BD, VB, VD]: 
-                            actions.append((row, col, 1, 90))   #esquerda
-                        if piece in [FC, FB, FE, BE, VC, VE, LV] :
-                            actions.append((row, col, 0, 90))   #direita  
-                        if piece in [FC, FE, FD, LH, BC, VC, VD]:
-                            actions.append((row, col, 0, 0))
-                elif col == 0:
-                    if piece in [VC, VE, BE, FC, FB, FE]:
-                            actions.append((row, col, 0, 180))  #180
-                    if piece in [FB, FE, FD, BB, VB, VE]: 
-                        actions.append((row, col, 1, 90))   #esquerda
-                    if piece in [FC, FE, FD, BC, VC, VD, LH] :
-                        actions.append((row, col, 0, 90))   #direita  
-                    if piece in [LV, VD, VB, BD, FD, FB, FC]:
-                        actions.append((row, col, 0, 0))
-                elif col == state.board.cols:
-                    if piece in [FC, FB, FD, BD, VD, VB]:
-                        actions.append((row, col, 0, 180))  #180
-                    if piece in [VC, VD, FC, FE, FD, BC]: 
-                        actions.append((row, col, 1, 90))   #esquerda
-                    if piece in [FB, FE, FD, BB, VB, VE]:
-                        actions.append((row, col, 0, 90))   #direita  
-                    if piece in [LV, VE, VC, BE, FB, FC, FE]:
-                        actions.append((row, col, 0, 0))
-                elif piece in ligacao:
-                    actions.append((row, col, 0, 90))
+        id = state.id
+        n = state.board.rows
+        row = (id - 1) // n
+        col = (id - 1) % n
+        piece = state.board.get_value(row, col)
+        if row == 0:
+            if col == 0:
+                if piece in [VC, FC, FE]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VE, FE, FB]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VD, FC, FD] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VB, FB, FD]:
                     actions.append((row, col, 0, 0))
-                else:    
-                    actions.append((row, col, 0, 90))
-                    actions.append((row, col, 0, 180))
-                    actions.append((row, col, 1, 90))
+            elif col == (n - 1):
+                if piece in [VD, FC, FD]:  
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VC, FC, FE]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VB, FB, FD] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VE, FB, FE]:
                     actions.append((row, col, 0, 0))
+            else:
+                if piece in [FC, FE, FD, BC, VC, VD]:  
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [FC, FB, FE, BE, VC, VE]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [BD, LV, VB, VD, FC, FB, FD] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [BB, LH, FB, FE, FD, VB, VE]:
+                    actions.append((row, col, 0, 0))
+        elif row == (n - 1):
+            if col == 0:
+                if piece in [VE, FB, FE]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VB, FB, FD]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VC, FC, FE] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VD, FC, FD]:
+                    actions.append((row, col, 0, 0))  
+            elif col == (n - 1):
+                if piece in [VB, FB, FD]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VD, FC, FD]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VE, FB, FE] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VC, FC, FE]:
+                    actions.append((row, col, 0, 0))
+            else:
+                if piece in [FB, FE, FD, BB, VB, VE]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [FC, FB, FD, BD, VB, VD]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [FC, FB, FE, BE, VC, VE, LV] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [FC, FE, FD, LH, BC, VC, VD]:
+                    actions.append((row, col, 0, 0))
+        elif col == 0:
+            if piece in [VC, VE, BE, FC, FB, FE]:
+                    actions.append((row, col, 0, 180))  #180
+            if piece in [FB, FE, FD, BB, VB, VE]: 
+                actions.append((row, col, 1, 90))   #esquerda
+            if piece in [FC, FE, FD, BC, VC, VD, LH] :
+                actions.append((row, col, 0, 90))   #direita  
+            if piece in [LV, VD, VB, BD, FD, FB, FC]:
+                actions.append((row, col, 0, 0))
+        elif col == (n - 1):
+            if piece in [FC, FB, FD, BD, VD, VB]:
+                actions.append((row, col, 0, 180))  #180
+            if piece in [VC, VD, FC, FE, FD, BC]: 
+                actions.append((row, col, 1, 90))   #esquerda
+            if piece in [FB, FE, FD, BB, VB, VE]:
+                actions.append((row, col, 0, 90))   #direita  
+            if piece in [LV, VE, VC, BE, FB, FC, FE]:
+                actions.append((row, col, 0, 0))
+        elif piece in ligacao:
+            actions.append((row, col, 0, 90))
+            actions.append((row, col, 0, 0))
+        else:    
+            actions.append((row, col, 0, 90))
+            actions.append((row, col, 0, 180))
+            actions.append((row, col, 1, 90))
+            actions.append((row, col, 0, 0))
+        state.increase_state_id()
         return actions
 
     def result(self, state: PipeManiaState, action):
@@ -242,7 +252,7 @@ class PipeMania(Problem):
         self.actions(state)."""
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
-        grid_copy = copy.deepcopy(state.board.get_grid())
+        state_copy = copy.deepcopy(state)
         if action[2] != 0 or action[3] != 0:
             row = action[0]
             col = action[1]
@@ -275,20 +285,22 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-            grid_copy[row][col] = new_piece
-            board_copy = Board(grid_copy)
-            return PipeManiaState(board_copy)
+            state_copy.board.set_value(row, col, new_piece)
+            
+            return state_copy
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
+        fecho = [FC, FD, FE, FB]
         right_exit = [FD, BC, BB, BD, VB, VD, LH, 'None']
         left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
         upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
         lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
+        n = state.board.rows
         for row in range(state.board.rows):
             for col in range(state.board.cols):
                 piece = state.board.get_value(row, col)
@@ -298,19 +310,17 @@ class PipeMania(Problem):
                     if row == 0: 
                         return False 
                 if piece in lower_exit:
-                    if row == state.board.rows:
+                    if row == n - 1:
                         return False
-                    lower_piece = state.board.adjacent_lower_value(row, col)
-                    if lower_piece not in upper_exit:
+                    if (lower_piece not in upper_exit) or ((piece in fecho) and (lower_piece in fecho)) :
                         return False 
                 if piece in left_exit:
                     if col == 0:
                         return False
                 if piece in right_exit:
-                    if col == state.board.cols:
+                    if col == n - 1:
                         return False
-                    right_piece = state.board.adjacent_right_value(row, col)
-                    if right_piece not in left_exit:
+                    if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
                         return False
         return True
        
@@ -333,10 +343,11 @@ if __name__ == "__main__":
 
     problem = PipeMania(board)
 
-    goal_node = depth_first_tree_search(problem)
+    goal_node = greedy_search(problem)
 
-    print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n", goal_node.state.board.print_grid(), sep="")
-
+    if isinstance(goal_node.state, PipeManiaState):
+        goal_node.state.board.print_grid()
+    elif isinstance(goal_node.state, Board):
+        goal_node.state.print_grid()
 
     pass
