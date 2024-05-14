@@ -44,6 +44,8 @@ class PipeManiaState:
     def increase_state_id(self):
         self.state_id += 1
 
+    def decrease_state_id(self):
+        self.state_id -= 1
     # TODO: outros metodos da classe
 
 
@@ -154,11 +156,14 @@ class PipeMania(Problem):
         ligacao = [LH, LV]
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
+            state.decrease_state_id()
         actions = []
         id = state.state_id
         n = state.board.rows
         row = (id - 1) // n
         col = (id - 1) % n
+        if id > n*n:
+            return actions
         piece = state.board.get_value(row, col)
         if row == 0:
             if col == 0:
@@ -230,7 +235,7 @@ class PipeMania(Problem):
                 actions.append((row, col, 0, 180))  #180
             if piece in [VC, VD, FC, FE, FD, BC]: 
                 actions.append((row, col, 1, 90))   #esquerda
-            if piece in [FB, FE, FD, BB, VB, VE]:
+            if piece in [FB, FE, FD, BB, VB, VE, LH]:
                 actions.append((row, col, 0, 90))   #direita  
             if piece in [LV, VE, VC, BE, FB, FC, FE]:
                 actions.append((row, col, 0, 0))
@@ -252,6 +257,7 @@ class PipeMania(Problem):
         self.actions(state)."""
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
+            state.decrease_state_id()
         state_copy = copy.deepcopy(state)
         row = action[0]
         col = action[1]
@@ -323,6 +329,10 @@ class PipeMania(Problem):
                         return False
                     if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
                         return False
+                if (right_piece in left_exit) and (piece not in right_exit):
+                    return False
+                if (lower_piece in upper_exit) and (piece not in lower_exit):
+                    return False
         return True
        
 
@@ -343,8 +353,6 @@ if __name__ == "__main__":
     board = Board.parse_instance()
 
     problem = PipeMania(board)
-    state = PipeManiaState(board)
-    print(problem.actions(state))
     
     goal_node = greedy_search(problem)
 
