@@ -329,9 +329,9 @@ class PipeMania(Problem):
                         return False
                     if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
                         return False
-                if (right_piece in left_exit) and (piece not in right_exit):
+                if (right_piece in left_exit) and (piece not in right_exit) and (right_piece != 'None'):
                     return False
-                if (lower_piece in upper_exit) and (piece not in lower_exit):
+                if (lower_piece in upper_exit) and (piece not in lower_exit) and (lower_piece != 'None'):
                     return False
         return True
        
