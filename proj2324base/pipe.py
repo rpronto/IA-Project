@@ -42,7 +42,7 @@ class PipeManiaState:
         return self.board
     
     def increase_state_id(self):
-        self.id += 1
+        self.state_id += 1
 
     # TODO: outros metodos da classe
 
@@ -155,7 +155,7 @@ class PipeMania(Problem):
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
         actions = []
-        id = state.id
+        id = state.state_id
         n = state.board.rows
         row = (id - 1) // n
         col = (id - 1) % n
@@ -170,7 +170,7 @@ class PipeMania(Problem):
                     actions.append((row, col, 0, 90))   #direita  
                 if piece in [VB, FB, FD]:
                     actions.append((row, col, 0, 0))
-            elif col == (n - 1):
+            elif col == n - 1:
                 if piece in [VD, FC, FD]:  
                     actions.append((row, col, 0, 180))  #180
                 if piece in [VC, FC, FE]: 
@@ -188,7 +188,7 @@ class PipeMania(Problem):
                     actions.append((row, col, 0, 90))   #direita  
                 if piece in [BB, LH, FB, FE, FD, VB, VE]:
                     actions.append((row, col, 0, 0))
-        elif row == (n - 1):
+        elif row == n - 1:
             if col == 0:
                 if piece in [VE, FB, FE]:
                     actions.append((row, col, 0, 180))  #180
@@ -198,7 +198,7 @@ class PipeMania(Problem):
                     actions.append((row, col, 0, 90))   #direita  
                 if piece in [VD, FC, FD]:
                     actions.append((row, col, 0, 0))  
-            elif col == (n - 1):
+            elif col == n - 1:
                 if piece in [VB, FB, FD]:
                     actions.append((row, col, 0, 180))  #180
                 if piece in [VD, FC, FD]: 
@@ -225,7 +225,7 @@ class PipeMania(Problem):
                 actions.append((row, col, 0, 90))   #direita  
             if piece in [LV, VD, VB, BD, FD, FB, FC]:
                 actions.append((row, col, 0, 0))
-        elif col == (n - 1):
+        elif col == n - 1:
             if piece in [FC, FB, FD, BD, VD, VB]:
                 actions.append((row, col, 0, 180))  #180
             if piece in [VC, VD, FC, FE, FD, BC]: 
@@ -253,9 +253,10 @@ class PipeMania(Problem):
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
         state_copy = copy.deepcopy(state)
+        row = action[0]
+        col = action[1]
+        new_piece = state.board.get_value(row, col)
         if action[2] != 0 or action[3] != 0:
-            row = action[0]
-            col = action[1]
             direction = action[2]
             degrees = action[3]
             piece = state.board.get_value(row, col)
@@ -285,9 +286,9 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-            state_copy.board.set_value(row, col, new_piece)
-            
-            return state_copy
+
+        state_copy.board.set_value(row, col, new_piece)  
+        return state_copy
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
@@ -342,7 +343,9 @@ if __name__ == "__main__":
     board = Board.parse_instance()
 
     problem = PipeMania(board)
-
+    state = PipeManiaState(board)
+    print(problem.actions(state))
+    
     goal_node = greedy_search(problem)
 
     if isinstance(goal_node.state, PipeManiaState):
