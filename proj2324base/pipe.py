@@ -109,6 +109,20 @@ class Board:
             return self.grid[row][right_col]
         return 'None'
         
+    def adjacent_left_value(self, row: int, col: int) -> (str):
+        """Devolve o valor imediatamente à direita"""
+        left_col = col - 1
+        if left_col > -1:
+            return self.grid[row][left_col]
+        return 'None'
+        
+    def adjacent_upper_value(self, row: int, col: int) -> (str):
+        """Devolve o valor imediatamente abaixo"""
+        upper_row = row - 1
+        if upper_row > -1:
+            return self.grid[upper_row][col]
+        return 'None'
+    
     def adjacent_lower_value(self, row: int, col: int) -> (str):
         """Devolve o valor imediatamente abaixo"""
         lower_row = row + 1
@@ -302,101 +316,49 @@ class PipeMania(Problem):
         if id > n*n:
             return actions
         
+        min_pos = 0
+        max_pos = n - 1
+        
         n = size
         inc = 0
         lim = n*4 - 4
         while(id > lim):
             n -= 2
-            lim += n*4 - 4
+            lim += (n*4 - 4)
             inc +=1
+            min_pos += 1
+            max_pos -= 1
+            
         
         new_id = id - lim
         pos = self.get_pos(new_id, n)
         row = pos[0] + inc
         col = pos[1] + inc
         piece = state.board.get_value(row, col)
-        if row == 0:
-            if col == 0:
-                if piece in [VC, FC, FE]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VE, FE, FB]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VD, FC, FD] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VB, FB, FD]:
-                    actions.append((row, col, 0, 0))
-            elif col == n - 1:
-                if piece in [VD, FC, FD]:  
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VC, FC, FE]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VB, FB, FD] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VE, FB, FE]:
-                    actions.append((row, col, 0, 0))
+        
+        right_exit = [FD, BC, BB, BD, VB, VD, LH]
+        left_exit = [FE, BC, BB, BE, VC, VE, LH]
+        upper_exit = [FC, BC, BE, BD, VC, VD, LV]
+        lower_exit = [VE, VB, LV, BB, BE, BD, FB]
+        
+        if row == min_pos:
+            upper_piece = state.board.adjacent_upper_value(row, col)      
+            if col == max_pos:
+                if upper_piece == 'None':
+                    if piece in  
+                else:
+                    right_piece = state.board.adjacent_right_value(row, col)
+            else:                  #nao esta na ultima coluna, ver esq e cima
+                left_piece = state.board.adjacent_left_value(row, col)
+                
+                
+        if row == max_pos:
+            if col == min_pos:
+            elif col == max_pos:
             else:
-                if piece in [FC, FE, FD, BC, VC, VD]:  
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [FC, FB, FE, BE, VC, VE]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [BD, LV, VB, VD, FC, FB, FD] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [BB, LH, FB, FE, FD, VB, VE]:
-                    actions.append((row, col, 0, 0))
-        elif row == n - 1:
-            if col == 0:
-                if piece in [VE, FB, FE]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VB, FB, FD]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VC, FC, FE] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VD, FC, FD]:
-                    actions.append((row, col, 0, 0))  
-            elif col == n - 1:
-                if piece in [VB, FB, FD]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VD, FC, FD]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VE, FB, FE] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VC, FC, FE]:
-                    actions.append((row, col, 0, 0))
-            else:
-                if piece in [FB, FE, FD, BB, VB, VE]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [FC, FB, FD, BD, VB, VD]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [FC, FB, FE, BE, VC, VE, LV] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [FC, FE, FD, LH, BC, VC, VD]:
-                    actions.append((row, col, 0, 0))
-        elif col == 0:
-            if piece in [VC, VE, BE, FC, FB, FE]:
-                    actions.append((row, col, 0, 180))  #180
-            if piece in [FB, FE, FD, BB, VB, VE]: 
-                actions.append((row, col, 1, 90))   #esquerda
-            if piece in [FC, FE, FD, BC, VC, VD, LH] :
-                actions.append((row, col, 0, 90))   #direita  
-            if piece in [LV, VD, VB, BD, FD, FB, FC]:
-                actions.append((row, col, 0, 0))
-        elif col == n - 1:
-            if piece in [FC, FB, FD, BD, VD, VB]:
-                actions.append((row, col, 0, 180))  #180
-            if piece in [VC, VD, FC, FE, FD, BC]: 
-                actions.append((row, col, 1, 90))   #esquerda
-            if piece in [FB, FE, FD, BB, VB, VE, LH]:
-                actions.append((row, col, 0, 90))   #direita  
-            if piece in [LV, VE, VC, BE, FB, FC, FE]:
-                actions.append((row, col, 0, 0))
-        elif piece in ligacao:
-            actions.append((row, col, 0, 90))
-            actions.append((row, col, 0, 0))
-        else:    
-            actions.append((row, col, 0, 90))
-            actions.append((row, col, 0, 180))
-            actions.append((row, col, 1, 90))
-            actions.append((row, col, 0, 0))
+        elif col == min_pos:
+        elif col == max_pos:
+                     
         state.increase_state_id()
         return actions
 
