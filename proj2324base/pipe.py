@@ -142,6 +142,36 @@ class PipeMania(Problem):
         """O construtor especifica o estado inicial."""
         self.initial = initial_state
 
+    def get_pos(self, new_id: int, n: int):    
+        top, bottom = 0, n - 1
+        left, right = 0, n - 1
+        
+        count = 0
+        for col in range(left, right + 1):
+            count += 1
+            if(count == new_id):
+                return(top, col)
+        top += 1
+        
+        for row in range(top, bottom + 1):
+            count += 1
+            if(count == new_id):
+                return(row, right)
+        right -= 1
+
+        if top <= bottom:
+            for col in range(right, left - 1, -1):
+                count += 1
+                if(count == new_id):
+                    return(bottom, col)
+            bottom -= 1
+        
+        if left <= right:
+            for row in range(bottom, top - 1, -1):
+                count += 1
+                if(count == new_id):
+                    return(row, left)
+
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento.
@@ -249,6 +279,127 @@ class PipeMania(Problem):
             actions.append((row, col, 0, 0))
         state.increase_state_id()
         return actions
+    
+    
+    def actions_2(self, state: PipeManiaState):
+        """Retorna uma lista de ações que podem ser executadas a
+        partir do estado passado como argumento.
+        0 -> ROTATE_CLOCKWISE
+        1 -> ROTATE_COUNTERCLOCKWISE
+        90 -> 90 graus de rotação, no sentido horário ou anti-horário
+        180 -> 180 graus de rotação, no sentido horário (180 graus a posição 
+        será igual independentemente do sentido da rotação então consideramos 
+        sempre o sentido horário)
+        Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
+        """
+        ligacao = [LH, LV]
+        if isinstance(state, PipeManiaState) == False:
+            state = PipeManiaState(state)
+            state.decrease_state_id()
+        actions = []
+        id = state.state_id
+        size = state.board.rows
+        if id > n*n:
+            return actions
+        
+        n = size
+        inc = 0
+        lim = n*4 - 4
+        while(id > lim):
+            n -= 2
+            lim += n*4 - 4
+            inc +=1
+        
+        new_id = id - lim
+        pos = self.get_pos(new_id, n)
+        row = pos[0] + inc
+        col = pos[1] + inc
+        piece = state.board.get_value(row, col)
+        if row == 0:
+            if col == 0:
+                if piece in [VC, FC, FE]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VE, FE, FB]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VD, FC, FD] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VB, FB, FD]:
+                    actions.append((row, col, 0, 0))
+            elif col == n - 1:
+                if piece in [VD, FC, FD]:  
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VC, FC, FE]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VB, FB, FD] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VE, FB, FE]:
+                    actions.append((row, col, 0, 0))
+            else:
+                if piece in [FC, FE, FD, BC, VC, VD]:  
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [FC, FB, FE, BE, VC, VE]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [BD, LV, VB, VD, FC, FB, FD] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [BB, LH, FB, FE, FD, VB, VE]:
+                    actions.append((row, col, 0, 0))
+        elif row == n - 1:
+            if col == 0:
+                if piece in [VE, FB, FE]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VB, FB, FD]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VC, FC, FE] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VD, FC, FD]:
+                    actions.append((row, col, 0, 0))  
+            elif col == n - 1:
+                if piece in [VB, FB, FD]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [VD, FC, FD]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [VE, FB, FE] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [VC, FC, FE]:
+                    actions.append((row, col, 0, 0))
+            else:
+                if piece in [FB, FE, FD, BB, VB, VE]:
+                    actions.append((row, col, 0, 180))  #180
+                if piece in [FC, FB, FD, BD, VB, VD]: 
+                    actions.append((row, col, 1, 90))   #esquerda
+                if piece in [FC, FB, FE, BE, VC, VE, LV] :
+                    actions.append((row, col, 0, 90))   #direita  
+                if piece in [FC, FE, FD, LH, BC, VC, VD]:
+                    actions.append((row, col, 0, 0))
+        elif col == 0:
+            if piece in [VC, VE, BE, FC, FB, FE]:
+                    actions.append((row, col, 0, 180))  #180
+            if piece in [FB, FE, FD, BB, VB, VE]: 
+                actions.append((row, col, 1, 90))   #esquerda
+            if piece in [FC, FE, FD, BC, VC, VD, LH] :
+                actions.append((row, col, 0, 90))   #direita  
+            if piece in [LV, VD, VB, BD, FD, FB, FC]:
+                actions.append((row, col, 0, 0))
+        elif col == n - 1:
+            if piece in [FC, FB, FD, BD, VD, VB]:
+                actions.append((row, col, 0, 180))  #180
+            if piece in [VC, VD, FC, FE, FD, BC]: 
+                actions.append((row, col, 1, 90))   #esquerda
+            if piece in [FB, FE, FD, BB, VB, VE, LH]:
+                actions.append((row, col, 0, 90))   #direita  
+            if piece in [LV, VE, VC, BE, FB, FC, FE]:
+                actions.append((row, col, 0, 0))
+        elif piece in ligacao:
+            actions.append((row, col, 0, 90))
+            actions.append((row, col, 0, 0))
+        else:    
+            actions.append((row, col, 0, 90))
+            actions.append((row, col, 0, 180))
+            actions.append((row, col, 1, 90))
+            actions.append((row, col, 0, 0))
+        state.increase_state_id()
+        return actions
+
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -338,8 +489,43 @@ class PipeMania(Problem):
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-        # TODO
-        pass
+        count = 0
+        
+        fecho = [FC, FD, FE, FB]
+        right_exit = [FD, BC, BB, BD, VB, VD, LH, 'None']
+        left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
+        upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
+        lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
+        if isinstance(node.state, PipeManiaState) == False:
+            node.state = PipeManiaState(node.state)
+        n = node.state.board.rows
+        for row in range(node.state.board.rows):
+            for col in range(node.state.board.cols):
+                piece = node.state.board.get_value(row, col)
+                right_piece = node.state.board.adjacent_right_value(row, col)
+                lower_piece = node.state.board.adjacent_lower_value(row, col)
+                if piece in upper_exit:
+                    if row == 0: 
+                        count += 1
+                if piece in lower_exit:
+                    if row == n - 1:
+                        count += 1
+                    if (lower_piece not in upper_exit) or ((piece in fecho) and (lower_piece in fecho)) :
+                        count += 1 
+                if piece in left_exit:
+                    if col == 0:
+                        count += 1
+                if piece in right_exit:
+                    if col == n - 1:
+                        count += 1
+                    if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
+                        count += 1
+                if (right_piece in left_exit) and (piece not in right_exit) and (right_piece != 'None'):
+                    count += 1
+                if (lower_piece in upper_exit) and (piece not in lower_exit) and (lower_piece != 'None'):
+                    count += 1
+        print(f"count: {count}")
+        return count 
 
     # TODO: outros metodos da classe
 
