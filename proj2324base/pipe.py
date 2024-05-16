@@ -173,36 +173,147 @@ class PipeMania(Problem):
             bottom -= 1
             right -= 1
             left += 1
+        
 
         new_id = id - prev_lim
+        inc = top
         
-    
         count = 0
         for col in range(left, right + 1):
             count += 1
             if(count == new_id):
-                return(top, col)
+                return(top, col, inc)
         top += 1
         
         for row in range(top, bottom + 1):
             count += 1
             if(count == new_id):
-                return(row, right)
+                return(row, right, inc)
         right -= 1
 
         if top <= bottom:
             for col in range(right, left - 1, -1):
                 count += 1
                 if(count == new_id):
-                    return(bottom, col)
+                    return(bottom, col, inc)
             bottom -= 1
         
         if left <= right:
             for row in range(bottom, top - 1, -1):
                 count += 1
                 if(count == new_id):
-                    return(row, left)
+                    return(row, left, inc)
 
+    #def actions(self, state: PipeManiaState):
+    #    """Retorna uma lista de ações que podem ser executadas a
+    #    partir do estado passado como argumento.
+    #    0 -> ROTATE_CLOCKWISE
+    #    1 -> ROTATE_COUNTERCLOCKWISE
+    #    90 -> 90 graus de rotação, no sentido horário ou anti-horário
+    #    180 -> 180 graus de rotação, no sentido horário (180 graus a posição 
+    #    será igual independentemente do sentido da rotação então consideramos 
+    #    sempre o sentido horário)
+    #    Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
+    #    """
+    #    ligacao = [LH, LV]
+    #    if isinstance(state, PipeManiaState) == False:
+    #        state = PipeManiaState(state)
+    #        state.decrease_state_id()
+    #    actions = []
+    #    id = state.state_id
+    #    n = state.board.rows
+    #    if id > n*n:
+    #        return actions
+    #    pos = self.get_pos(id, n)
+    #    row = pos[0]
+    #    col = pos[1]
+    #    piece = state.board.get_value(row, col)
+    #    if row == 0:
+    #        if col == 0:
+    #            if piece in [VC, FC, FE]:
+    #                actions.append((row, col, 0, 180))  #180
+    #            if piece in [VE, FE, FB]: 
+    #                actions.append((row, col, 1, 90))   #esquerda
+    #            if piece in [VD, FC, FD] :
+    #                actions.append((row, col, 0, 90))   #direita  
+    #            if piece in [VB, FB, FD]:
+    #                actions.append((row, col, 0, 0))
+    #        elif col == n - 1:
+    #            if piece in [VD, FC, FD]:  
+    #                actions.append((row, col, 0, 180))  #180
+    #            if piece in [VC, FC, FE]: 
+    #                actions.append((row, col, 1, 90))   #esquerda
+    #            if piece in [VB, FB, FD] :
+    #                actions.append((row, col, 0, 90))   #direita  
+    #            if piece in [VE, FB, FE]:
+    #                actions.append((row, col, 0, 0))
+    #        else:
+    #            if piece in [FC, FE, FD, BC, VC, VD]:  
+    #                actions.append((row, col, 0, 180))  #180
+    #            if piece in [FC, FB, FE, BE, VC, VE]: 
+    #                actions.append((row, col, 1, 90))   #esquerda
+    #            if piece in [BD, LV, VB, VD, FC, FB, FD] :
+    #                actions.append((row, col, 0, 90))   #direita  
+    #            if piece in [BB, LH, FB, FE, FD, VB, VE]:
+    #                actions.append((row, col, 0, 0))
+    #    elif row == n - 1:
+    #        if col == 0:
+    #            if piece in [VE, FB, FE]:
+    #                actions.append((row, col, 0, 180))  #180
+    #            if piece in [VB, FB, FD]: 
+    #                actions.append((row, col, 1, 90))   #esquerda
+    #            if piece in [VC, FC, FE] :
+    #                actions.append((row, col, 0, 90))   #direita  
+    #            if piece in [VD, FC, FD]:
+    #                actions.append((row, col, 0, 0))  
+    #        elif col == n - 1:
+    #            if piece in [VB, FB, FD]:
+    #                actions.append((row, col, 0, 180))  #180
+    #            if piece in [VD, FC, FD]: 
+    #                actions.append((row, col, 1, 90))   #esquerda
+    #            if piece in [VE, FB, FE] :
+    #                actions.append((row, col, 0, 90))   #direita  
+    #            if piece in [VC, FC, FE]:
+    #                actions.append((row, col, 0, 0))
+    #        else:
+    #            if piece in [FB, FE, FD, BB, VB, VE]:
+    #                actions.append((row, col, 0, 180))  #180
+    #            if piece in [FC, FB, FD, BD, VB, VD]: 
+    #                actions.append((row, col, 1, 90))   #esquerda
+    #            if piece in [FC, FB, FE, BE, VC, VE, LV] :
+    #                actions.append((row, col, 0, 90))   #direita  
+    #            if piece in [FC, FE, FD, LH, BC, VC, VD]:
+    #                actions.append((row, col, 0, 0))
+    #    elif col == 0:
+    #        if piece in [VC, VE, BE, FC, FB, FE]:
+    #                actions.append((row, col, 0, 180))  #180
+    #        if piece in [FB, FE, FD, BB, VB, VE]: 
+    #            actions.append((row, col, 1, 90))   #esquerda
+    #        if piece in [FC, FE, FD, BC, VC, VD, LH] :
+    #            actions.append((row, col, 0, 90))   #direita  
+    #        if piece in [LV, VD, VB, BD, FD, FB, FC]:
+    #            actions.append((row, col, 0, 0))
+    #    elif col == n - 1:
+    #        if piece in [FC, FB, FD, BD, VD, VB]:
+    #            actions.append((row, col, 0, 180))  #180
+    #        if piece in [VC, VD, FC, FE, FD, BC]: 
+    #            actions.append((row, col, 1, 90))   #esquerda
+    #        if piece in [FB, FE, FD, BB, VB, VE, LH]:
+    #            actions.append((row, col, 0, 90))   #direita  
+    #        if piece in [LV, VE, VC, BE, FB, FC, FE]:
+    #            actions.append((row, col, 0, 0))
+    #    elif piece in ligacao:
+    #        actions.append((row, col, 0, 90))
+    #        actions.append((row, col, 0, 0))
+    #    else:    
+    #        actions.append((row, col, 0, 90))
+    #        actions.append((row, col, 0, 180))
+    #        actions.append((row, col, 1, 90))
+    #        actions.append((row, col, 0, 0))
+    #    state.increase_state_id()
+    #    return actions
+    
+    
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento.
@@ -214,171 +325,196 @@ class PipeMania(Problem):
         sempre o sentido horário)
         Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
         """
-        ligacao = [LH, LV]
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
             state.decrease_state_id()
         actions = []
         id = state.state_id
         n = state.board.rows
+        if id > n*n:
+            return actions
+        
         pos = self.get_pos(id, n)
         row = pos[0]
         col = pos[1]
-        if id > n*n:
-            return actions
         piece = state.board.get_value(row, col)
-        if row == 0:
-            if col == 0:
-                if piece in [VC, FC, FE]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VE, FE, FB]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VD, FC, FD] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VB, FB, FD]:
-                    actions.append((row, col, 0, 0))
-            elif col == n - 1:
-                if piece in [VD, FC, FD]:  
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VC, FC, FE]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VB, FB, FD] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VE, FB, FE]:
-                    actions.append((row, col, 0, 0))
-            else:
-                if piece in [FC, FE, FD, BC, VC, VD]:  
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [FC, FB, FE, BE, VC, VE]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [BD, LV, VB, VD, FC, FB, FD] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [BB, LH, FB, FE, FD, VB, VE]:
-                    actions.append((row, col, 0, 0))
-        elif row == n - 1:
-            if col == 0:
-                if piece in [VE, FB, FE]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VB, FB, FD]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VC, FC, FE] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VD, FC, FD]:
-                    actions.append((row, col, 0, 0))  
-            elif col == n - 1:
-                if piece in [VB, FB, FD]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [VD, FC, FD]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [VE, FB, FE] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [VC, FC, FE]:
-                    actions.append((row, col, 0, 0))
-            else:
-                if piece in [FB, FE, FD, BB, VB, VE]:
-                    actions.append((row, col, 0, 180))  #180
-                if piece in [FC, FB, FD, BD, VB, VD]: 
-                    actions.append((row, col, 1, 90))   #esquerda
-                if piece in [FC, FB, FE, BE, VC, VE, LV] :
-                    actions.append((row, col, 0, 90))   #direita  
-                if piece in [FC, FE, FD, LH, BC, VC, VD]:
-                    actions.append((row, col, 0, 0))
-        elif col == 0:
-            if piece in [VC, VE, BE, FC, FB, FE]:
-                    actions.append((row, col, 0, 180))  #180
-            if piece in [FB, FE, FD, BB, VB, VE]: 
-                actions.append((row, col, 1, 90))   #esquerda
-            if piece in [FC, FE, FD, BC, VC, VD, LH] :
-                actions.append((row, col, 0, 90))   #direita  
-            if piece in [LV, VD, VB, BD, FD, FB, FC]:
-                actions.append((row, col, 0, 0))
-        elif col == n - 1:
-            if piece in [FC, FB, FD, BD, VD, VB]:
-                actions.append((row, col, 0, 180))  #180
-            if piece in [VC, VD, FC, FE, FD, BC]: 
-                actions.append((row, col, 1, 90))   #esquerda
-            if piece in [FB, FE, FD, BB, VB, VE, LH]:
-                actions.append((row, col, 0, 90))   #direita  
-            if piece in [LV, VE, VC, BE, FB, FC, FE]:
-                actions.append((row, col, 0, 0))
-        elif piece in ligacao:
-            actions.append((row, col, 0, 90))
-            actions.append((row, col, 0, 0))
-        else:    
-            actions.append((row, col, 0, 90))
-            actions.append((row, col, 0, 180))
-            actions.append((row, col, 1, 90))
-            actions.append((row, col, 0, 0))
+        min_pos = pos[2]
+        max_pos = n - 1 - pos[2]
+
+        right_exit = [FD, BC, BB, BD, VB, VD, LH]
+        left_exit = [FE, BC, BB, BE, VC, VE, LH]
+        upper_exit = [FC, BC, BE, BD, VC, VD, LV]
+        lower_exit = [VE, VB, LV, BB, BE, BD, FB]
+        
+        if (row == min_pos) and (col != max_pos):                   #LINHA CIMA
+            upper_piece = state.board.adjacent_upper_value(row, col)                 
+            left_piece = state.board.adjacent_left_value(row, col)
+            if upper_piece in lower_exit:                                    #saida para cima
+                if (left_piece in right_exit):                               #saida para esquerda
+                    if piece in [VB, BB, BD]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [VD, BD, BC]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [VE, BE, BB] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [VC, BC, BE]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para esq
+                    if piece in [FB, BE, VE]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FD, BB, VB]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [LH, FE, BC, VC] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FC, BD, VD, LV]:
+                        actions.append((row, col, 0, 0))
+            else:                                                               #sem saida para cima
+                if (left_piece in right_exit):                                  #saida para esq
+                    if piece in [FD, BC, VD]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FC, VC, BE]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [LV, FB, VB, BD] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FE, BB, VE, LH]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para esq
+                    if piece in [FC, FE, VC]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FE, VE, FB]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FD, FC, VD] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FB, FD, VB]:
+                        actions.append((row, col, 0, 0))
+                    
+        elif (col == max_pos) and (row != max_pos):                  #COL DIREITA
+            upper_piece = state.board.adjacent_upper_value(row, col)                 
+            right_piece = state.board.adjacent_right_value(row, col)
+            if upper_piece in lower_exit:                                    #saida para cima
+                if (right_piece in left_exit):                               #saida para direita
+                    if piece in [VE, BE, BB]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [VB, BB, BD]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [VC, BC, BE] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [VD, BD, BC]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para direita
+                    if piece in [FB, BD, VB]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FD, BC, VD]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FE, BB, VC, LH] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FC, BE, VC, LV]:
+                        actions.append((row, col, 0, 0))
+            else:                                                               #sem saida para cima
+                if (right_piece in left_exit):                                  #saida para direita
+                    if piece in [FE, BC, VC]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FB, BE, VE]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FC, BD, VD, LV] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FD, BB, VB, LH]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para direita
+                    if piece in [VD, FD, FC]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [VC, FC, FE]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [VB, FB, FD] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [VE, FE, FB]:
+                        actions.append((row, col, 0, 0))
+
+        elif (row == max_pos) and (col != min_pos):                             #LINHA BAIXO
+            lower_piece = state.board.adjacent_lower_value(row, col)                 
+            right_piece = state.board.adjacent_right_value(row, col)
+            if lower_piece in upper_exit:                                    #saida para baixo
+                if (right_piece in left_exit):                               #saida para direita
+                    if piece in [VC, BC, BE]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [VE, BE, BB]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [VD, BD, BC]:
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [VB, BB, BD]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para direita
+                    if piece in [FC, BD, VD]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FE, BC, VC]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [LH, FD, BB, VB]:
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FB, VE, BE, LV]:
+                        actions.append((row, col, 0, 0))
+            else:                                                               #sem saida para baixo
+                if (right_piece in left_exit):                                  #saida para direita
+                    if piece in [FE, VE, BD]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FB, VB, BD]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [LV, FC, VC, BE] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FD, BC, VD, LH]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para direita
+                    if piece in [FB, VB, FD]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FD, VD, FC]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FE, VE, FB] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FC, VC, FE]:
+                        actions.append((row, col, 0, 0))      
+        else:                                                                   #COL ESQUERDA
+            lower_piece = state.board.adjacent_lower_value(row, col)                 
+            left_piece = state.board.adjacent_left_value(row, col)
+            if lower_piece in upper_exit:                                    #saida para baixo
+                if (left_piece in right_exit):                               #saida para esquerda
+                    if piece in [VD, BD, BC]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [VC, BC, BE]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [VB, BB, BD] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [VE, BE, BB]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para esq
+                    if piece in [FC, BE, VC]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FE, BB, VE]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FD, BC, VB, LH] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FB, BD, VB, LV]:
+                        actions.append((row, col, 0, 0))
+            else:                                                               #sem saida para baixo
+                if (left_piece in right_exit):                                  #saida para esq
+                    if piece in [FD, BB, VB]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [FC, BD, VD]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [FB, BE, VE, LV] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [FE, BC, VC, LH]:
+                        actions.append((row, col, 0, 0))
+                else:                                                           #sem saida para esq
+                    if piece in [VE, FE, FB]:
+                        actions.append((row, col, 0, 180))  #180
+                    if piece in [VB, FB, FD]: 
+                        actions.append((row, col, 1, 90))   #esquerda
+                    if piece in [VC, FC, FE] :
+                        actions.append((row, col, 0, 90))   #direita  
+                    if piece in [VD, FD, FC]:
+                        actions.append((row, col, 0, 0))
+        
         state.increase_state_id()
         return actions
-    
-    
-#    def actions_2(self, state: PipeManiaState):
-#        """Retorna uma lista de ações que podem ser executadas a
-#        partir do estado passado como argumento.
-#        0 -> ROTATE_CLOCKWISE
-#        1 -> ROTATE_COUNTERCLOCKWISE
-#        90 -> 90 graus de rotação, no sentido horário ou anti-horário
-#        180 -> 180 graus de rotação, no sentido horário (180 graus a posição 
-#        será igual independentemente do sentido da rotação então consideramos 
-#        sempre o sentido horário)
-#        Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
-#        """
-#        ligacao = [LH, LV]
-#        if isinstance(state, PipeManiaState) == False:
-#            state = PipeManiaState(state)
-#            state.decrease_state_id()
-#        actions = []
-#        id = state.state_id
-#        size = state.board.rows
-#        if id > n*n:
-#            return actions
-#        
-#        min_pos = 0
-#        max_pos = n - 1
-#        
-#        n = size
-#        inc = 0
-#        lim = n*4 - 4
-#        while(id > lim):
-#            n -= 2
-#            lim += (n*4 - 4)
-#            inc +=1
-#            min_pos += 1
-#            max_pos -= 1
-#            
-#        
-#        new_id = id - lim
-#        pos = self.get_pos(new_id, n)
-#        row = pos[0] + inc
-#        col = pos[1] + inc
-#        piece = state.board.get_value(row, col)
-#        
-#        right_exit = [FD, BC, BB, BD, VB, VD, LH]
-#        left_exit = [FE, BC, BB, BE, VC, VE, LH]
-#        upper_exit = [FC, BC, BE, BD, VC, VD, LV]
-#        lower_exit = [VE, VB, LV, BB, BE, BD, FB]
-#        
-#        if row == min_pos:
-#            upper_piece = state.board.adjacent_upper_value(row, col)      
-#            if col == max_pos:
-#                if upper_piece == 'None':
-#                    if piece in  
-#                else:
-#                    right_piece = state.board.adjacent_right_value(row, col)
-#            else:                  #nao esta na ultima coluna, ver esq e cima
-#                left_piece = state.board.adjacent_left_value(row, col)
-#                
-#                
-#        if row == max_pos:
-#            if col == min_pos:
-#            elif col == max_pos:
-#            else:
-#        elif col == min_pos:
-#        elif col == max_pos:
-#                     
-#        state.increase_state_id()
-#        return actions
 
 
     def result(self, state: PipeManiaState, action):
