@@ -156,10 +156,27 @@ class PipeMania(Problem):
         """O construtor especifica o estado inicial."""
         self.initial = initial_state
 
-    def get_pos(self, new_id: int, n: int):    
+    def get_pos(self, id, n):    
         top, bottom = 0, n - 1
         left, right = 0, n - 1
         
+        lim = n*4 - 4
+        prev_lim = 0
+
+        while(id > lim):
+            prev_lim = lim
+            n -= 2
+            lim += (n*4 - 4)
+            if n == 1:
+                lim += 1
+            top += 1
+            bottom -= 1
+            right -= 1
+            left += 1
+
+        new_id = id - prev_lim
+        
+    
         count = 0
         for col in range(left, right + 1):
             count += 1
@@ -204,8 +221,9 @@ class PipeMania(Problem):
         actions = []
         id = state.state_id
         n = state.board.rows
-        row = (id - 1) // n
-        col = (id - 1) % n
+        pos = self.get_pos(id, n)
+        row = pos[0]
+        col = pos[1]
         if id > n*n:
             return actions
         piece = state.board.get_value(row, col)
@@ -295,72 +313,72 @@ class PipeMania(Problem):
         return actions
     
     
-    def actions_2(self, state: PipeManiaState):
-        """Retorna uma lista de ações que podem ser executadas a
-        partir do estado passado como argumento.
-        0 -> ROTATE_CLOCKWISE
-        1 -> ROTATE_COUNTERCLOCKWISE
-        90 -> 90 graus de rotação, no sentido horário ou anti-horário
-        180 -> 180 graus de rotação, no sentido horário (180 graus a posição 
-        será igual independentemente do sentido da rotação então consideramos 
-        sempre o sentido horário)
-        Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
-        """
-        ligacao = [LH, LV]
-        if isinstance(state, PipeManiaState) == False:
-            state = PipeManiaState(state)
-            state.decrease_state_id()
-        actions = []
-        id = state.state_id
-        size = state.board.rows
-        if id > n*n:
-            return actions
-        
-        min_pos = 0
-        max_pos = n - 1
-        
-        n = size
-        inc = 0
-        lim = n*4 - 4
-        while(id > lim):
-            n -= 2
-            lim += (n*4 - 4)
-            inc +=1
-            min_pos += 1
-            max_pos -= 1
-            
-        
-        new_id = id - lim
-        pos = self.get_pos(new_id, n)
-        row = pos[0] + inc
-        col = pos[1] + inc
-        piece = state.board.get_value(row, col)
-        
-        right_exit = [FD, BC, BB, BD, VB, VD, LH]
-        left_exit = [FE, BC, BB, BE, VC, VE, LH]
-        upper_exit = [FC, BC, BE, BD, VC, VD, LV]
-        lower_exit = [VE, VB, LV, BB, BE, BD, FB]
-        
-        if row == min_pos:
-            upper_piece = state.board.adjacent_upper_value(row, col)      
-            if col == max_pos:
-                if upper_piece == 'None':
-                    if piece in  
-                else:
-                    right_piece = state.board.adjacent_right_value(row, col)
-            else:                  #nao esta na ultima coluna, ver esq e cima
-                left_piece = state.board.adjacent_left_value(row, col)
-                
-                
-        if row == max_pos:
-            if col == min_pos:
-            elif col == max_pos:
-            else:
-        elif col == min_pos:
-        elif col == max_pos:
-                     
-        state.increase_state_id()
-        return actions
+#    def actions_2(self, state: PipeManiaState):
+#        """Retorna uma lista de ações que podem ser executadas a
+#        partir do estado passado como argumento.
+#        0 -> ROTATE_CLOCKWISE
+#        1 -> ROTATE_COUNTERCLOCKWISE
+#        90 -> 90 graus de rotação, no sentido horário ou anti-horário
+#        180 -> 180 graus de rotação, no sentido horário (180 graus a posição 
+#        será igual independentemente do sentido da rotação então consideramos 
+#        sempre o sentido horário)
+#        Peça de ligação roda sempre para a direita 90 graus (o resultado é independente do sentido)
+#        """
+#        ligacao = [LH, LV]
+#        if isinstance(state, PipeManiaState) == False:
+#            state = PipeManiaState(state)
+#            state.decrease_state_id()
+#        actions = []
+#        id = state.state_id
+#        size = state.board.rows
+#        if id > n*n:
+#            return actions
+#        
+#        min_pos = 0
+#        max_pos = n - 1
+#        
+#        n = size
+#        inc = 0
+#        lim = n*4 - 4
+#        while(id > lim):
+#            n -= 2
+#            lim += (n*4 - 4)
+#            inc +=1
+#            min_pos += 1
+#            max_pos -= 1
+#            
+#        
+#        new_id = id - lim
+#        pos = self.get_pos(new_id, n)
+#        row = pos[0] + inc
+#        col = pos[1] + inc
+#        piece = state.board.get_value(row, col)
+#        
+#        right_exit = [FD, BC, BB, BD, VB, VD, LH]
+#        left_exit = [FE, BC, BB, BE, VC, VE, LH]
+#        upper_exit = [FC, BC, BE, BD, VC, VD, LV]
+#        lower_exit = [VE, VB, LV, BB, BE, BD, FB]
+#        
+#        if row == min_pos:
+#            upper_piece = state.board.adjacent_upper_value(row, col)      
+#            if col == max_pos:
+#                if upper_piece == 'None':
+#                    if piece in  
+#                else:
+#                    right_piece = state.board.adjacent_right_value(row, col)
+#            else:                  #nao esta na ultima coluna, ver esq e cima
+#                left_piece = state.board.adjacent_left_value(row, col)
+#                
+#                
+#        if row == max_pos:
+#            if col == min_pos:
+#            elif col == max_pos:
+#            else:
+#        elif col == min_pos:
+#        elif col == max_pos:
+#                     
+#        state.increase_state_id()
+#        return actions
 
 
     def result(self, state: PipeManiaState, action):
@@ -486,7 +504,6 @@ class PipeMania(Problem):
                     count += 1
                 if (lower_piece in upper_exit) and (piece not in lower_exit) and (lower_piece != 'None'):
                     count += 1
-        print(f"count: {count}")
         return count 
 
     # TODO: outros metodos da classe
