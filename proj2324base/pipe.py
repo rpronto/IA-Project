@@ -255,7 +255,7 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 180))  #180
                     if piece in [FD, BB, VB]: 
                         actions.append((row, col, 1, 90))   #esquerda
-                    if piece in [LH, FE, BC, VC] :
+                    if piece in [FE, BC, VC, LH] :
                         actions.append((row, col, 0, 90))   #direita  
                     if piece in [FC, BD, VD, LV]:
                         actions.append((row, col, 0, 0))
@@ -263,9 +263,9 @@ class PipeMania(Problem):
                 if (left_piece in right_exit):                                  #saida para esq
                     if piece in [FD, BC, VD]:
                         actions.append((row, col, 0, 180))  #180
-                    if piece in [FC, VC, BE]: 
+                    if piece in [FC, BE, VC]: 
                         actions.append((row, col, 1, 90))   #esquerda
-                    if piece in [LV, FB, VB, BD] :
+                    if piece in [FB, BD, VB, LV] :
                         actions.append((row, col, 0, 90))   #direita  
                     if piece in [FE, BB, VE, LH]:
                         actions.append((row, col, 0, 0))
@@ -339,9 +339,9 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 180))  #180
                     if piece in [FE, BC, VC]: 
                         actions.append((row, col, 1, 90))   #esquerda
-                    if piece in [LH, FD, BB, VB]:
+                    if piece in [FD, BB, VB, LH]:
                         actions.append((row, col, 0, 90))   #direita  
-                    if piece in [FB, VE, BE, LV]:
+                    if piece in [FB, BE, VE, LV]:
                         actions.append((row, col, 0, 0))
             else:                                                               #sem saida para baixo
                 if (right_piece in left_exit):                                  #saida para direita
@@ -349,9 +349,9 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 180))  #180
                     if piece in [FB, VB, BD]: 
                         actions.append((row, col, 1, 90))   #esquerda
-                    if piece in [LV, FC, VC, BE] :
+                    if piece in [FC, VC, BE, LV] :
                         actions.append((row, col, 0, 90))   #direita  
-                    if piece in [FD, BC, VD, LH]:
+                    if piece in [FD, VD, BC, LH]:
                         actions.append((row, col, 0, 0))
                 else:                                                           #sem saida para direita
                     if piece in [FB, VB, FD]:
@@ -403,7 +403,7 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 90))   #direita  
                     if piece in [VD, FD, FC]:
                         actions.append((row, col, 0, 0))
-        
+        #print(f"id_actions: {id, row, col} ; actions: {actions} ; piece: {piece}")
         state.increase_state_id()
         return actions
 
@@ -450,7 +450,7 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-
+        #print(f"id_result: {state.id, row, col}, new_piece: {new_piece}")
         state_copy.board.set_value(row, col, new_piece)  
         return state_copy
 
