@@ -345,7 +345,7 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 0))
             else:                                                               #sem saida para baixo
                 if (right_piece in left_exit):                                  #saida para direita
-                    if piece in [FE, VE, BD]:
+                    if piece in [FE, VE, BB]:
                         actions.append((row, col, 0, 180))  #180
                     if piece in [FB, VB, BD]: 
                         actions.append((row, col, 1, 90))   #esquerda
@@ -466,6 +466,8 @@ class PipeMania(Problem):
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
         n = state.board.rows
+        if state.state_id < n*n:
+            return False
         for row in range(state.board.rows):
             for col in range(state.board.cols):
                 piece = state.board.get_value(row, col)
@@ -496,43 +498,43 @@ class PipeMania(Problem):
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-        count = 0
-        
-        fecho = [FC, FD, FE, FB]
-        right_exit = [FD, BC, BB, BD, VB, VD, LH, 'None']
-        left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
-        upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
-        lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
-        if isinstance(node.state, PipeManiaState) == False:
-            node.state = PipeManiaState(node.state)
-        n = node.state.board.rows
-        for row in range(node.state.board.rows):
-            for col in range(node.state.board.cols):
-                piece = node.state.board.get_value(row, col)
-                right_piece = node.state.board.adjacent_right_value(row, col)
-                lower_piece = node.state.board.adjacent_lower_value(row, col)
-                if piece in upper_exit:
-                    if row == 0: 
-                        count += 1
-                if piece in lower_exit:
-                    if row == n - 1:
-                        count += 1
-                    if (lower_piece not in upper_exit) or ((piece in fecho) and (lower_piece in fecho)) :
-                        count += 1 
-                if piece in left_exit:
-                    if col == 0:
-                        count += 1
-                if piece in right_exit:
-                    if col == n - 1:
-                        count += 1
-                    if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
-                        count += 1
-                if (right_piece in left_exit) and (piece not in right_exit) and (right_piece != 'None'):
-                    count += 1
-                if (lower_piece in upper_exit) and (piece not in lower_exit) and (lower_piece != 'None'):
-                    count += 1
-        return count 
-
+    #    count = 0
+    #    
+    #    fecho = [FC, FD, FE, FB]
+    #    right_exit = [FD, BC, BB, BD, VB, VD, LH, 'None']
+    #    left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
+    #    upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
+    #    lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
+    #    if isinstance(node.state, PipeManiaState) == False:
+    #        node.state = PipeManiaState(node.state)
+    #    n = node.state.board.rows
+    #    for row in range(node.state.board.rows):
+    #        for col in range(node.state.board.cols):
+    #            piece = node.state.board.get_value(row, col)
+    #            right_piece = node.state.board.adjacent_right_value(row, col)
+    #            lower_piece = node.state.board.adjacent_lower_value(row, col)
+    #            if piece in upper_exit:
+    #                if row == 0: 
+    #                    count += 1
+    #            if piece in lower_exit:
+    #                if row == n - 1:
+    #                    count += 1
+    #                if (lower_piece not in upper_exit) or ((piece in fecho) and (lower_piece in fecho)) :
+    #                    count += 1 
+    #            if piece in left_exit:
+    #                if col == 0:
+    #                    count += 1
+    #            if piece in right_exit:
+    #                if col == n - 1:
+    #                    count += 1
+    #                if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
+    #                    count += 1
+    #            if (right_piece in left_exit) and (piece not in right_exit) and (right_piece != 'None'):
+    #                count += 1
+    #            if (lower_piece in upper_exit) and (piece not in lower_exit) and (lower_piece != 'None'):
+    #                count += 1
+    #    return count 
+    pass
     # TODO: outros metodos da classe
 
 
