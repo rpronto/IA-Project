@@ -416,7 +416,8 @@ class PipeMania(Problem):
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
             state.decrease_state_id()
-        state_copy = copy.deepcopy(state)
+        grid_copy = copy.deepcopy(state.board.grid)
+        new_board = Board(grid_copy)
         row = action[0]
         col = action[1]
         new_piece = state.board.get_value(row, col)
@@ -450,9 +451,13 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-        #print(f"id_result: {state.id, row, col}, new_piece: {new_piece}")
-        state_copy.board.set_value(row, col, new_piece)  
-        return state_copy
+
+        #print(f"id_result: {state.state_id, row, col}, new_piece: {new_piece}")
+        new_board.set_value(row, col, new_piece) 
+        new_state = PipeManiaState(new_board) 
+        new_state.state_id = state.state_id
+        #print(f"new_id_result: {new_state.state_id, row, col}, new_piece: {new_piece}")
+        return new_state
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
@@ -498,43 +503,13 @@ class PipeMania(Problem):
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-    #    count = 0
-    #    
-    #    fecho = [FC, FD, FE, FB]
-    #    right_exit = [FD, BC, BB, BD, VB, VD, LH, 'None']
-    #    left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
-    #    upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
-    #    lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
-    #    if isinstance(node.state, PipeManiaState) == False:
-    #        node.state = PipeManiaState(node.state)
-    #    n = node.state.board.rows
-    #    for row in range(node.state.board.rows):
-    #        for col in range(node.state.board.cols):
-    #            piece = node.state.board.get_value(row, col)
-    #            right_piece = node.state.board.adjacent_right_value(row, col)
-    #            lower_piece = node.state.board.adjacent_lower_value(row, col)
-    #            if piece in upper_exit:
-    #                if row == 0: 
-    #                    count += 1
-    #            if piece in lower_exit:
-    #                if row == n - 1:
-    #                    count += 1
-    #                if (lower_piece not in upper_exit) or ((piece in fecho) and (lower_piece in fecho)) :
-    #                    count += 1 
-    #            if piece in left_exit:
-    #                if col == 0:
-    #                    count += 1
-    #            if piece in right_exit:
-    #                if col == n - 1:
-    #                    count += 1
-    #                if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
-    #                    count += 1
-    #            if (right_piece in left_exit) and (piece not in right_exit) and (right_piece != 'None'):
-    #                count += 1
-    #            if (lower_piece in upper_exit) and (piece not in lower_exit) and (lower_piece != 'None'):
-    #                count += 1
-    #    return count 
-    pass
+        
+        if isinstance(node.state, PipeManiaState) == False:
+            node.state = PipeManiaState(node.state)
+        n = node.state.state_id
+        
+        return n
+    
     # TODO: outros metodos da classe
 
 
