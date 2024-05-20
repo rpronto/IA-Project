@@ -45,7 +45,9 @@ class PipeManiaState:
         self.state_id += 1
 
     def decrease_state_id(self):
-        self.state_id -= 1
+        PipeManiaState.state_id -= 1
+
+       
     # TODO: outros metodos da classe
 
 
@@ -56,6 +58,10 @@ class Board:
         self.grid = np.array(input)
         self.rows = len(self.grid)
         self.cols = len(self.grid[0])
+        self.pos = 1
+
+    def increase_pos(self):
+        self.pos += 1
 
     def get_grid(self):
         return self.grid
@@ -70,7 +76,7 @@ class Board:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.grid[row][col]
 
-    def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
+    def adjacent_vertical_values(self, row: int, col: int) -> tuple:
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
         values = ()
@@ -86,7 +92,7 @@ class Board:
             values += ('None',)
         return values
         
-    def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
+    def adjacent_horizontal_values(self, row: int, col: int) -> tuple:
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
         values = ()
@@ -218,13 +224,13 @@ class PipeMania(Problem):
         """
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
-            state.decrease_state_id()
         actions = []
-        id = state.state_id
         n = state.board.rows
+        
+        id = state.board.pos
+        state.board.increase_pos()
         if id > n*n:
             return actions
-        
         pos = self.get_pos(id, n)
         row = pos[0]
         col = pos[1]
@@ -403,9 +409,44 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 90))   #direita  
                     if piece in [VD, FD, FC]:
                         actions.append((row, col, 0, 0))
-        #print(f"id_actions: {id, row, col} ; actions: {actions} ; piece: {piece}")
-        state.increase_state_id()
+        if piece in [FC, FD, FE, FB]:
+            final_actions = self.check_fechos(piece, state, row, col, actions)
+            return final_actions
         return actions
+
+
+    def check_fechos(self, piece, state: PipeManiaState, row: int, col: int, actions):
+        values_v = state.board.adjacent_vertical_values(row, col)
+        values_h = state.board.adjacent_horizontal_values(row, col)
+        fecho = [FC, FD, FB, FE]
+        possible_result = []
+        final_actions = []
+        if (values_v[0] not in fecho) and (values_v[0] != 'None'):
+            possible_result.append(FC) 
+        if (values_v[1] not in fecho) and (values_v[1] != 'None'):
+            possible_result.append(FB) 
+        if  (values_h[0] not in fecho) and (values_h[0] != 'None'):
+            possible_result.append(FE) 
+        if  (values_h[1] not in fecho) and (values_h[1] != 'None'):
+            possible_result.append(FD)
+        
+        for action in actions:
+            pos_piece = fecho.index(piece)
+            if action[3] == 90:
+                if action[2] == 0:
+                    pos_piece += 1
+                else:
+                    pos_piece -=1
+                    if pos_piece < 0:
+                        pos_piece = len(fecho) - 1
+            elif action[3] == 180:    
+                pos_piece += 2
+            pos_final = pos_piece % len(fecho)
+            if fecho[pos_final] in possible_result:
+                final_actions.append(action)
+        return final_actions
+        
+                
 
 
     def result(self, state: PipeManiaState, action):
@@ -415,9 +456,7 @@ class PipeMania(Problem):
         self.actions(state)."""
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
-            state.decrease_state_id()
-        grid_copy = copy.deepcopy(state.board.grid)
-        new_board = Board(grid_copy)
+        state_copy = copy.deepcopy(state)
         row = action[0]
         col = action[1]
         new_piece = state.board.get_value(row, col)
@@ -451,13 +490,9 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-
-        #print(f"id_result: {state.state_id, row, col}, new_piece: {new_piece}")
-        new_board.set_value(row, col, new_piece) 
-        new_state = PipeManiaState(new_board) 
-        new_state.state_id = state.state_id
-        #print(f"new_id_result: {new_state.state_id, row, col}, new_piece: {new_piece}")
-        return new_state
+        #print(f"id_result: {state.id, row, col}, new_piece: {new_piece}")
+        state_copy.board.set_value(row, col, new_piece)  
+        return state_copy
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
@@ -471,7 +506,7 @@ class PipeMania(Problem):
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
         n = state.board.rows
-        if state.state_id < n*n:
+        if state.board.pos < n*n:
             return False
         for row in range(state.board.rows):
             for col in range(state.board.cols):
@@ -504,11 +539,7 @@ class PipeMania(Problem):
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
         
-        if isinstance(node.state, PipeManiaState) == False:
-            node.state = PipeManiaState(node.state)
-        n = node.state.state_id
-        
-        return n
+        pass
     
     # TODO: outros metodos da classe
 
