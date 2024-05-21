@@ -545,10 +545,10 @@ class PipeMania(Problem):
                     continue
                 visited.add((row, col))
                 for neighbor in get_neighbors(row, col):
-                    n_row, n_col = neighbor
+                    nb_row, nb_col = neighbor
                     piece = state.board.get_value(row, col)
-                    neighbor_piece = state.board.get_value(n_row, n_col)
-                    if neighbor_piece != 'None' and is_connected(piece, neighbor_piece, row, col, n_row, n_col):
+                    neighbor_piece = state.board.get_value(nb_row, nb_col)
+                    if neighbor_piece != 'None' and is_connected(piece, neighbor_piece, row, col, nb_row, nb_col):
                         stack.append(neighbor)
         
         visited = set()
