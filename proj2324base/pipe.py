@@ -490,7 +490,6 @@ class PipeMania(Problem):
             
             pos_final = pos % len(tipo)
             new_piece = tipo[pos_final]
-        #print(f"id_result: {state.id, row, col}, new_piece: {new_piece}")
         state_copy.board.set_value(row, col, new_piece)  
         return state_copy
 
@@ -498,49 +497,76 @@ class PipeMania(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        fecho = [FC, FD, FE, FB]
         right_exit = [FD, BC, BB, BD, VB, VD, LH, 'None']
         left_exit = [FE, BC, BB, BE, VC, VE, LH, 'None']
         upper_exit = [FC, BC, BE, BD, VC, VD, LV, 'None']
         lower_exit = [VE, VB, LV, BB, BE, BD, FB, 'None']
+        
+        visited = set()
+        start_found = False
+
         if isinstance(state, PipeManiaState) == False:
             state = PipeManiaState(state)
         n = state.board.rows
         if state.board.pos < n*n:
             return False
+        
+        def is_valid_piece(row, col):
+            return (0 <= row < state.board.rows) and (0 <= col < state.board.cols)
+
+        def get_neighbors(row, col):
+            neighbors = []
+            if is_valid_piece(row + 1, col):
+                neighbors.append((row + 1, col))
+            if is_valid_piece(row - 1, col):
+                neighbors.append((row - 1, col))
+            if is_valid_piece(row, col + 1):
+                neighbors.append((row, col + 1))
+            if is_valid_piece(row, col - 1):
+                neighbors.append((row, col - 1))
+            return neighbors
+        
+        def is_connected(piece, neighbor_piece, row, col, nb_row, nb_col):
+            if (nb_row, nb_col) == (row, col + 1):  
+                return piece in right_exit and neighbor_piece in left_exit
+            if (nb_row, nb_col) == (row + 1, col):  
+                return piece in lower_exit and neighbor_piece in upper_exit
+            if (nb_row, nb_col) == (row, col - 1):  
+                return piece in left_exit and neighbor_piece in right_exit
+            if (nb_row, nb_col) == (row - 1, col):  
+                return piece in upper_exit and neighbor_piece in lower_exit
+            return False
+        
+        def dfs(start_row, start_col, visited):
+            stack = [(start_row, start_col)]
+            while stack:
+                row, col = stack.pop()
+                if (row, col) in visited:
+                    continue
+                visited.add((row, col))
+                for neighbor in get_neighbors(row, col):
+                    n_row, n_col = neighbor
+                    piece = state.board.get_value(row, col)
+                    neighbor_piece = state.board.get_value(n_row, n_col)
+                    if neighbor_piece != 'None' and is_connected(piece, neighbor_piece, row, col, n_row, n_col):
+                        stack.append(neighbor)
+        
+        visited = set()
+        start_found = False
+        
         for row in range(state.board.rows):
             for col in range(state.board.cols):
-                piece = state.board.get_value(row, col)
-                right_piece = state.board.adjacent_right_value(row, col)
-                lower_piece = state.board.adjacent_lower_value(row, col)
-                if piece in upper_exit:
-                    if row == 0: 
-                        return False 
-                if piece in lower_exit:
-                    if row == n - 1:
-                        return False
-                    if (lower_piece not in upper_exit) or ((piece in fecho) and (lower_piece in fecho)) :
-                        return False 
-                if piece in left_exit:
-                    if col == 0:
-                        return False
-                if piece in right_exit:
-                    if col == n - 1:
-                        return False
-                    if (right_piece not in left_exit) or ((piece in fecho) and (right_piece in fecho)):
-                        return False
-                if (right_piece in left_exit) and (piece not in right_exit) and (right_piece != 'None'):
-                    return False
-                if (lower_piece in upper_exit) and (piece not in lower_exit) and (lower_piece != 'None'):
+                if not start_found:
+                    dfs(row, col, visited)
+                    start_found = True
+                if (row, col) not in visited:
                     return False
         return True
        
 
     def h(self, node: Node):
-        """Função heuristica utilizada para a procura A*."""
-        
+        """Função heuristica utilizada para a procura A*."""   
         pass
-    
     # TODO: outros metodos da classe
 
 
@@ -554,7 +580,7 @@ if __name__ == "__main__":
 
     problem = PipeMania(board)
     
-    goal_node = greedy_search(problem)
+    goal_node = depth_first_tree_search(problem)
 
     if isinstance(goal_node.state, PipeManiaState):
         goal_node.state.board.print_grid()
