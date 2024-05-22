@@ -162,53 +162,35 @@ class PipeMania(Problem):
         """O construtor especifica o estado inicial."""
         self.initial = initial_state
 
-    def get_pos(self, id, n):    
-        top, bottom = 0, n - 1
-        left, right = 0, n - 1
-        
-        lim = n*4 - 4
-        prev_lim = 0
-
-        while(id > lim):
-            prev_lim = lim
-            n -= 2
-            lim += (n*4 - 4)
-            if n == 1:
-                lim += 1
-            top += 1
-            bottom -= 1
-            right -= 1
-            left += 1
-        
-
-        new_id = id - prev_lim
-        inc = top
-        
-        count = 0
-        for col in range(left, right + 1):
-            count += 1
-            if(count == new_id):
-                return(top, col, inc)
-        top += 1
-        
-        for row in range(top, bottom + 1):
-            count += 1
-            if(count == new_id):
-                return(row, right, inc)
-        right -= 1
-
-        if top <= bottom:
-            for col in range(right, left - 1, -1):
-                count += 1
-                if(count == new_id):
-                    return(bottom, col, inc)
-            bottom -= 1
-        
-        if left <= right:
-            for row in range(bottom, top - 1, -1):
-                count += 1
-                if(count == new_id):
-                    return(row, left, inc)
+    def get_pos(self, id, n):
+        # Find the layer of the current id
+        layer = 0
+        size = n
+        lim = size * 4 - 4
+        while id > lim:
+            id -= lim
+            size -= 2
+            layer += 1
+            if size == 1:
+                size += 1  # Handling the central piece if it exists
+    
+        # Top row
+        if id <= size:
+            return (layer, layer + id - 1, layer)
+        id -= size
+    
+        # Right column
+        if id <= size - 1:
+            return (layer + id, n - layer - 1, layer)
+        id -= (size - 1)
+    
+        # Bottom row
+        if id <= size - 1:
+            return (n - layer - 1, n - layer - id - 1, layer)
+        id -= (size - 1)
+    
+        # Left column
+        return (n - layer - id - 1, layer, layer)
     
     
     def actions(self, state: PipeManiaState):
@@ -326,7 +308,8 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 90))   #direita  
                     if piece in [VE, FE, FB]:
                         actions.append((row, col, 0, 0))
-
+            if row == min_pos:
+                actions = self.check_adjacent(piece, state, row, col, actions, 0)       
         elif (row == max_pos) and (col != min_pos):                             #LINHA BAIXO
             lower_piece = state.board.adjacent_lower_value(row, col)                 
             right_piece = state.board.adjacent_right_value(row, col)
@@ -367,7 +350,10 @@ class PipeMania(Problem):
                     if piece in [FE, VE, FB] :
                         actions.append((row, col, 0, 90))   #direita  
                     if piece in [FC, VC, FE]:
-                        actions.append((row, col, 0, 0))      
+                        actions.append((row, col, 0, 0))     
+            if col == max_pos: 
+                actions = self.check_adjacent(piece, state, row, col, actions, 1)
+            
         else:                                                                   #COL ESQUERDA
             lower_piece = state.board.adjacent_lower_value(row, col)                 
             left_piece = state.board.adjacent_left_value(row, col)
@@ -409,6 +395,8 @@ class PipeMania(Problem):
                         actions.append((row, col, 0, 90))   #direita  
                     if piece in [VD, FD, FC]:
                         actions.append((row, col, 0, 0))
+            if row == max_pos:
+                actions = self.check_adjacent(piece, state, row, col, actions, 2)
         if piece in [FC, FD, FE, FB]:
             final_actions = self.check_fechos(piece, state, row, col, actions)
             return final_actions
@@ -447,7 +435,51 @@ class PipeMania(Problem):
         return final_actions
         
                 
+    def check_adjacent(self, piece, state: PipeManiaState, row: int, col: int, actions, flag):
+        if flag == 0:
+            adjacent_piece = state.board.adjacent_left_value(row, col)
+        elif flag == 1:
+            adjacent_piece = state.board.adjacent_upper_value(row, col)
+        else: 
+            adjacent_piece = state.board.adjacent_right_value(row, col)
+        
+        final_actions = []
+        right_exit = [FD, BC, BB, BD, VB, VD, LH]
+        left_exit = [FE, BC, BB, BE, VC, VE, LH]
+        upper_exit = [FC, BC, BE, BD, VC, VD, LV]
+        lower_exit = [VE, VB, LV, BB, BE, BD, FB]
+        fecho = [FC, FD, FB, FE]
+        bifurcacao = [BC, BD, BB, BE]
+        volta = [VC, VD, VB, VE]
+        ligacao = [LH, LV]
 
+        adjacent_exits = [right_exit, lower_exit, left_exit]
+        piece_exits = [left_exit, upper_exit, right_exit]
+
+        if piece in fecho:
+            tipo = fecho
+        elif piece in bifurcacao:
+            tipo = bifurcacao
+        elif piece in volta:
+            tipo = volta
+        elif piece in ligacao:
+            tipo = ligacao
+
+        for action in actions:
+            pos_piece = tipo.index(piece)
+            if action[3] == 90:
+                if action[2] == 0:
+                    pos_piece += 1
+                else:
+                    pos_piece -=1
+                    if pos_piece < 0:
+                        pos_piece = len(tipo) - 1
+            elif action[3] == 180:    
+                pos_piece += 2
+            pos_final = pos_piece % len(tipo)
+            if ((adjacent_piece in adjacent_exits[flag]) and (tipo[pos_final] in piece_exits[flag])) or ((adjacent_piece not in adjacent_exits[flag]) and (tipo[pos_final] not in piece_exits[flag])):
+                final_actions.append(action)
+        return final_actions 
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
