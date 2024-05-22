@@ -162,35 +162,53 @@ class PipeMania(Problem):
         """O construtor especifica o estado inicial."""
         self.initial = initial_state
 
-    def get_pos(self, id, n):
-        # Find the layer of the current id
-        layer = 0
-        size = n
-        lim = size * 4 - 4
-        while id > lim:
-            id -= lim
-            size -= 2
-            layer += 1
-            if size == 1:
-                size += 1  # Handling the central piece if it exists
-    
-        # Top row
-        if id <= size:
-            return (layer, layer + id - 1, layer)
-        id -= size
-    
-        # Right column
-        if id <= size - 1:
-            return (layer + id, n - layer - 1, layer)
-        id -= (size - 1)
-    
-        # Bottom row
-        if id <= size - 1:
-            return (n - layer - 1, n - layer - id - 1, layer)
-        id -= (size - 1)
-    
-        # Left column
-        return (n - layer - id - 1, layer, layer)
+    def get_pos(self, id, n):    
+        top, bottom = 0, n - 1
+        left, right = 0, n - 1
+        
+        lim = n*4 - 4
+        prev_lim = 0
+
+        while(id > lim):
+            prev_lim = lim
+            n -= 2
+            lim += (n*4 - 4)
+            if n == 1:
+                lim += 1
+            top += 1
+            bottom -= 1
+            right -= 1
+            left += 1
+        
+
+        new_id = id - prev_lim
+        inc = top
+        
+        count = 0
+        for col in range(left, right + 1):
+            count += 1
+            if(count == new_id):
+                return(top, col, inc)
+        top += 1
+        
+        for row in range(top, bottom + 1):
+            count += 1
+            if(count == new_id):
+                return(row, right, inc)
+        right -= 1
+
+        if top <= bottom:
+            for col in range(right, left - 1, -1):
+                count += 1
+                if(count == new_id):
+                    return(bottom, col, inc)
+            bottom -= 1
+        
+        if left <= right:
+            for row in range(bottom, top - 1, -1):
+                count += 1
+                if(count == new_id):
+                    return(row, left, inc)
     
     
     def actions(self, state: PipeManiaState):
@@ -464,7 +482,6 @@ class PipeMania(Problem):
             tipo = volta
         elif piece in ligacao:
             tipo = ligacao
-
         for action in actions:
             pos_piece = tipo.index(piece)
             if action[3] == 90:
