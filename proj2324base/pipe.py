@@ -582,7 +582,7 @@ if __name__ == "__main__":
 
     problem = PipeMania(board)
     
-    goal_node = greedy_search(problem)
+    goal_node = depth_first_tree_search(problem)
 
     if isinstance(goal_node.state, PipeManiaState):
         goal_node.state.board.print_grid()
